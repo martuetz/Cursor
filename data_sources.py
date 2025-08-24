@@ -30,9 +30,12 @@ class DataManager:
         try:
             ticker = yf.Ticker(symbol)
             data = ticker.history(period=period)
+            if data.empty:
+                st.warning(f"No data returned for {symbol}")
+                return pd.DataFrame()
             return data
         except Exception as e:
-            st.error(f"Error fetching {symbol}: {str(e)}")
+            st.warning(f"Error fetching {symbol}: {str(e)}")
             return pd.DataFrame()
     
     @st.cache_data(ttl=3600)  # 1 hour for daily data

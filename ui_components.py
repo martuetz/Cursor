@@ -322,9 +322,8 @@ class DashboardComponents:
         return period
     
     def create_loading_spinner(self, message: str = "Loading data..."):
-        """Create a loading spinner"""
-        with st.spinner(message):
-            time.sleep(0.1)  # Small delay for visual effect
+        """Create a loading spinner context manager"""
+        return st.spinner(message)
     
     def create_error_message(self, error: str, suggestion: str = ""):
         """Create a styled error message"""

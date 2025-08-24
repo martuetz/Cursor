@@ -114,14 +114,22 @@ def show_market_overview(data_manager: DataManager, ui: DashboardComponents):
     st.markdown("## 🎯 Market Overview")
     st.markdown("Key valuation metrics and market indicators")
     
-    # Load data with spinner
-    with ui.create_loading_spinner("Fetching market data..."):
-        metrics = data_manager.get_all_metrics()
-        composite_score = data_manager.calculate_composite_score(metrics)
-    
-    if not metrics:
-        ui.create_error_message("Failed to load market data", "Please check your internet connection and try again")
-        return
+    try:
+        # Load data with spinner
+        with ui.create_loading_spinner("Fetching market data..."):
+            metrics = data_manager.get_all_metrics()
+            composite_score = data_manager.calculate_composite_score(metrics)
+        
+        if not metrics:
+            ui.create_error_message("Failed to load market data", "Please check your internet connection and try again")
+            return
+    except Exception as e:
+        st.error(f"Error loading market data: {str(e)}")
+        st.info("Using demo data instead...")
+        # Fallback to demo data
+        from demo_data import get_demo_metrics, get_demo_composite_score
+        metrics = get_demo_metrics()
+        composite_score = get_demo_composite_score()
     
     # Create metric grid
     ui.create_metric_grid(metrics, cols=3)
@@ -204,12 +212,19 @@ def show_asset_browser(data_manager: DataManager, ui: DashboardComponents,
     selected_symbol = assets[asset_names.index(selected_asset)]
     
     # Load asset data
-    with ui.create_loading_spinner(f"Loading {selected_asset} data..."):
-        asset_data = data_manager.get_stock_price(selected_symbol, period="1y")
-    
-    if asset_data.empty:
-        ui.create_error_message(f"Failed to load {selected_asset} data")
-        return
+    try:
+        with ui.create_loading_spinner(f"Loading {selected_asset} data..."):
+            asset_data = data_manager.get_stock_price(selected_symbol, period="1y")
+        
+        if asset_data.empty:
+            ui.create_error_message(f"Failed to load {selected_asset} data")
+            return
+    except Exception as e:
+        st.error(f"Error loading {selected_asset} data: {str(e)}")
+        st.info("Using demo data instead...")
+        # Fallback to demo data
+        from demo_data import generate_demo_stock_data
+        asset_data = generate_demo_stock_data(selected_symbol, 365)
     
     # Main chart
     st.markdown(f"### {selected_asset} Price Chart")
@@ -296,12 +311,19 @@ def show_valuation_detail(data_manager: DataManager, ui: DashboardComponents):
     st.markdown("Deep dive into valuation metrics and historical context")
     
     # Load all metrics
-    with ui.create_loading_spinner("Loading valuation data..."):
-        metrics = data_manager.get_all_metrics()
-    
-    if not metrics:
-        ui.create_error_message("Failed to load valuation data")
-        return
+    try:
+        with ui.create_loading_spinner("Loading valuation data..."):
+            metrics = data_manager.get_all_metrics()
+        
+        if not metrics:
+            ui.create_error_message("Failed to load valuation data")
+            return
+    except Exception as e:
+        st.error(f"Error loading valuation data: {str(e)}")
+        st.info("Using demo data instead...")
+        # Fallback to demo data
+        from demo_data import get_demo_metrics
+        metrics = get_demo_metrics()
     
     # Create tabs for each metric
     metric_names = {
@@ -430,13 +452,21 @@ def show_signals_dashboard(data_manager: DataManager, ui: DashboardComponents):
     st.markdown("Composite analysis and action guidance")
     
     # Load data
-    with ui.create_loading_spinner("Calculating signals..."):
-        metrics = data_manager.get_all_metrics()
-        composite_score = data_manager.calculate_composite_score(metrics)
-    
-    if not composite_score:
-        ui.create_error_message("Failed to calculate composite score")
-        return
+    try:
+        with ui.create_loading_spinner("Calculating signals..."):
+            metrics = data_manager.get_all_metrics()
+            composite_score = data_manager.calculate_composite_score(metrics)
+        
+        if not composite_score:
+            ui.create_error_message("Failed to calculate composite score")
+            return
+    except Exception as e:
+        st.error(f"Error calculating signals: {str(e)}")
+        st.info("Using demo data instead...")
+        # Fallback to demo data
+        from demo_data import get_demo_metrics, get_demo_composite_score
+        metrics = get_demo_metrics()
+        composite_score = get_demo_composite_score()
     
     # Two-lens approach
     col1, col2 = st.columns(2)
